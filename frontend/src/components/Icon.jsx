@@ -6,6 +6,7 @@ const PATHS = {
   user: 'M12 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21c0-4 4-6 8-6s8 2 8 6',
   logout: 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',
   alert: 'M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+  truck: 'M1 6h13v10H1zM14 10h4l3 3v3h-7M1 16h7',
 };
 
 export default function Icon({ name, size = 18 }) {

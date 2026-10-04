@@ -5,8 +5,10 @@ import logo from '../assets/logo.png';
 
 const NAV = [
   { to: '/dashboard', label: 'Dashboard', icon: 'home' },
-  { to: '/products', label: 'Products', icon: 'grid' },
   { to: '/categories', label: 'Categories', icon: 'tag' },
+  { to: '/products', label: 'Products', icon: 'grid' },
+  { to: '/orders', label: 'Orders', icon: 'box' },
+  { to: '/delivery-payments', label: 'Delivery & Payments', icon: 'truck' },
 ];
 
 export default function Layout() {
