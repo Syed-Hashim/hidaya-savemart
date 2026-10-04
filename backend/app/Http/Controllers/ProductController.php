@@ -25,6 +25,7 @@ class ProductController extends Controller
             'price'          => 'required|numeric|min:0',
             'stock_quantity' => 'required|integer|min:0',
             'image'          => 'nullable|image|max:2048',
+            'is_active'      => 'sometimes|boolean',
         ]);
 
         if ($request->hasFile('image')) {
@@ -57,6 +58,7 @@ class ProductController extends Controller
             'price'          => 'sometimes|required|numeric|min:0',
             'stock_quantity' => 'sometimes|required|integer|min:0',
             'image'          => 'nullable|image|max:2048',
+            'is_active'      => 'sometimes|boolean',
         ]);
 
         if ($request->hasFile('image')) {

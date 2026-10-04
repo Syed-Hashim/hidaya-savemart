@@ -16,11 +16,13 @@ class Product extends Model
         'price',
         'stock_quantity',
         'image',
+        'is_active',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'stock_quantity' => 'integer',
+        'is_active' => 'boolean',
     ];
 
     public function category()

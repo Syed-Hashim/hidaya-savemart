@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import client from '../api/client';
+import Modal from '../components/Modal';
 
 const emptyForm = {
   category_id: '',
@@ -13,8 +14,11 @@ const emptyForm = {
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   async function loadProducts() {
@@ -28,8 +32,7 @@ export default function ProductsPage() {
   }
 
   useEffect(() => {
-    loadProducts();
-    loadCategories();
+    Promise.all([loadProducts(), loadCategories()]).then(() => setLoading(false));
   }, []);
 
   function handleChange(e) {
@@ -37,9 +40,31 @@ export default function ProductsPage() {
     setForm((prev) => ({ ...prev, [name]: files ? files[0] : value }));
   }
 
+  function openAdd() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setError('');
+    setShowModal(true);
+  }
+
+  function openEdit(product) {
+    setEditingId(product.id);
+    setForm({
+      category_id: product.category_id,
+      name: product.name,
+      description: product.description ?? '',
+      price: product.price,
+      stock_quantity: product.stock_quantity,
+      image: null,
+    });
+    setError('');
+    setShowModal(true);
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
 
     const data = new FormData();
     data.append('category_id', form.category_id);
@@ -57,29 +82,24 @@ export default function ProductsPage() {
       } else {
         await client.post('/products', data);
       }
-      setForm(emptyForm);
-      setEditingId(null);
+      setShowModal(false);
       loadProducts();
     } catch (err) {
       setError(err.response?.data?.message || 'Something went wrong');
+    } finally {
+      setSubmitting(false);
     }
   }
 
-  function startEdit(product) {
-    setEditingId(product.id);
-    setForm({
-      category_id: product.category_id,
-      name: product.name,
-      description: product.description ?? '',
-      price: product.price,
-      stock_quantity: product.stock_quantity,
-      image: null,
-    });
-  }
-
-  function cancelEdit() {
-    setEditingId(null);
-    setForm(emptyForm);
+  async function toggleActive(product) {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, is_active: !p.is_active } : p))
+    );
+    try {
+      await client.post(`/products/${product.id}`, { is_active: !product.is_active });
+    } catch {
+      loadProducts();
+    }
   }
 
   async function handleDelete(id) {
@@ -88,71 +108,19 @@ export default function ProductsPage() {
     loadProducts();
   }
 
+  if (loading) {
+    return <p>Loading products...</p>;
+  }
+
   return (
     <div>
       <div className="mh">
         <div>
           <h2>Products</h2>
-          <p>Add and update what's available in the store.</p>
+          <p>Changes appear in the customer app straight away.</p>
         </div>
+        <button onClick={openAdd}>Add product</button>
       </div>
-
-      <form className="product-form" onSubmit={handleSubmit}>
-        <select
-          name="category_id"
-          value={form.category_id}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select category</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          name="name"
-          placeholder="Product name"
-          value={form.name}
-          onChange={handleChange}
-          required
-        />
-        <textarea
-          name="description"
-          placeholder="Description"
-          value={form.description}
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          step="0.01"
-          min="0"
-          value={form.price}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="number"
-          name="stock_quantity"
-          placeholder="Stock quantity"
-          min="0"
-          value={form.stock_quantity}
-          onChange={handleChange}
-          required
-        />
-        <input type="file" name="image" accept="image/*" onChange={handleChange} />
-        <button type="submit">{editingId ? 'Update' : 'Add'} Product</button>
-        {editingId && (
-          <button type="button" onClick={cancelEdit}>
-            Cancel
-          </button>
-        )}
-      </form>
-      {error && <p className="error">{error}</p>}
 
       <div className="card">
         <table>
@@ -161,14 +129,15 @@ export default function ProductsPage() {
               <th>Product</th>
               <th>Category</th>
               <th>Price</th>
-              <th>Stock</th>
-              <th>Actions</th>
+              <th>In stock</th>
+              <th>Show in app</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
             {products.length === 0 && (
               <tr>
-                <td colSpan={5} className="empty-note">
+                <td colSpan={6} className="empty-note">
                   No products yet — add your first one above.
                 </td>
               </tr>
@@ -199,7 +168,17 @@ export default function ProductsPage() {
                   )}
                 </td>
                 <td>
-                  <button type="button" onClick={() => startEdit(product)}>
+                  <button
+                    type="button"
+                    className={'switch' + (product.is_active ? ' on' : '')}
+                    role="switch"
+                    aria-checked={product.is_active}
+                    aria-label={`Show ${product.name} in app`}
+                    onClick={() => toggleActive(product)}
+                  />
+                </td>
+                <td style={{ textAlign: 'right' }}>
+                  <button type="button" onClick={() => openEdit(product)}>
                     Edit
                   </button>
                   <button className="btn-danger" onClick={() => handleDelete(product.id)}>
@@ -211,6 +190,88 @@ export default function ProductsPage() {
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <Modal title={editingId ? 'Edit product' : 'Add product'} onClose={() => setShowModal(false)}>
+          <form onSubmit={handleSubmit}>
+            {error && <p className="error">{error}</p>}
+
+            <label>
+              Product name
+              <input
+                type="text"
+                name="name"
+                placeholder="e.g. Basmati Rice 5kg"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+            </label>
+
+            <label>
+              Description
+              <textarea
+                name="description"
+                placeholder="Optional"
+                value={form.description}
+                onChange={handleChange}
+              />
+            </label>
+
+            <label>
+              Category
+              <select name="category_id" value={form.category_id} onChange={handleChange} required>
+                <option value="">Select category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <div className="field-row">
+              <label>
+                Price (Rs)
+                <input
+                  type="number"
+                  name="price"
+                  step="0.01"
+                  min="0"
+                  value={form.price}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+              <label>
+                Stock
+                <input
+                  type="number"
+                  name="stock_quantity"
+                  min="0"
+                  value={form.stock_quantity}
+                  onChange={handleChange}
+                  required
+                />
+              </label>
+            </div>
+
+            <label>
+              Image
+              <input type="file" name="image" accept="image/*" onChange={handleChange} />
+            </label>
+
+            <div className="modal-actions">
+              <button type="button" onClick={() => setShowModal(false)} disabled={submitting}>
+                Cancel
+              </button>
+              <button type="submit" disabled={submitting}>
+                {submitting ? 'Saving...' : 'Save product'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }

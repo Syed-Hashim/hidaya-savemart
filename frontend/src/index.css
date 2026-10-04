@@ -104,6 +104,17 @@ button:active {
   transform: translateY(1px);
 }
 
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:disabled:hover {
+  background: var(--brand);
+  border-color: var(--brand);
+}
+
 button[type='button'] {
   background: transparent;
   color: var(--ink);
@@ -455,22 +466,6 @@ textarea:focus {
   margin-bottom: 16px;
 }
 
-.product-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 16px;
-  align-items: flex-start;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px;
-}
-
-.product-form textarea {
-  width: 100%;
-  min-height: 60px;
-}
 
 /* Admin page header */
 .mh {
@@ -860,4 +855,81 @@ textarea:focus {
 .setting-row small {
   display: block;
   color: var(--muted);
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(38, 24, 10, 0.45);
+  display: grid;
+  place-items: center;
+  z-index: 50;
+  padding: 16px;
+}
+
+.modal-box {
+  background: var(--surface);
+  color: var(--ink);
+  border-radius: 16px;
+  width: min(480px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 22px;
+}
+
+.modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.modal-head h3 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  padding: 4px;
+  margin: 0;
+}
+
+.modal-close:hover {
+  background: var(--brand-tint);
+  color: var(--ink);
+}
+
+.modal-box form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.modal-box label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.modal-box .field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.modal-box .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.modal-box .modal-actions button {
+  margin-right: 0;
 }
