@@ -51,7 +51,12 @@ export default function CategoriesPage() {
 
   return (
     <div>
-      <h1>Categories</h1>
+      <div className="mh">
+        <div>
+          <h2>Categories</h2>
+          <p>Group products so shoppers can browse by section.</p>
+        </div>
+      </div>
 
       <form className="inline-form" onSubmit={handleSubmit}>
         <input
@@ -70,25 +75,38 @@ export default function CategoriesPage() {
       </form>
       {error && <p className="error">{error}</p>}
 
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {categories.map((category) => (
-            <tr key={category.id}>
-              <td>{category.name}</td>
-              <td>
-                <button onClick={() => startEdit(category)}>Edit</button>
-                <button onClick={() => handleDelete(category.id)}>Delete</button>
-              </td>
+      <div className="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {categories.length === 0 && (
+              <tr>
+                <td colSpan={2} className="empty-note">
+                  No categories yet — add your first one above.
+                </td>
+              </tr>
+            )}
+            {categories.map((category) => (
+              <tr key={category.id}>
+                <td>{category.name}</td>
+                <td>
+                  <button type="button" onClick={() => startEdit(category)}>
+                    Edit
+                  </button>
+                  <button className="btn-danger" onClick={() => handleDelete(category.id)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

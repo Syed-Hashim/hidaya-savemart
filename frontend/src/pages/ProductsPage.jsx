@@ -90,7 +90,12 @@ export default function ProductsPage() {
 
   return (
     <div>
-      <h1>Products</h1>
+      <div className="mh">
+        <div>
+          <h2>Products</h2>
+          <p>Add and update what's available in the store.</p>
+        </div>
+      </div>
 
       <form className="product-form" onSubmit={handleSubmit}>
         <select
@@ -149,41 +154,63 @@ export default function ProductsPage() {
       </form>
       {error && <p className="error">{error}</p>}
 
-      <table>
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Category</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>
-                {product.image && (
-                  <img
-                    src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${product.image}`}
-                    alt={product.name}
-                    width={50}
-                  />
-                )}
-              </td>
-              <td>{product.name}</td>
-              <td>{product.category?.name}</td>
-              <td>{product.price}</td>
-              <td>{product.stock_quantity}</td>
-              <td>
-                <button onClick={() => startEdit(product)}>Edit</button>
-                <button onClick={() => handleDelete(product.id)}>Delete</button>
-              </td>
+      <div className="card">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {products.length === 0 && (
+              <tr>
+                <td colSpan={5} className="empty-note">
+                  No products yet — add your first one above.
+                </td>
+              </tr>
+            )}
+            {products.map((product) => (
+              <tr key={product.id}>
+                <td>
+                  <div className="product-cell">
+                    {product.image ? (
+                      <img
+                        className="product-thumb"
+                        src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${product.image}`}
+                        alt={product.name}
+                      />
+                    ) : (
+                      <span className="product-thumb product-thumb-placeholder">?</span>
+                    )}
+                    <span>{product.name}</span>
+                  </div>
+                </td>
+                <td>{product.category?.name}</td>
+                <td>Rs {Number(product.price).toLocaleString()}</td>
+                <td>
+                  {product.stock_quantity}
+                  {product.stock_quantity === 0 && <span className="pill pill-danger">Out</span>}
+                  {product.stock_quantity > 0 && product.stock_quantity <= 10 && (
+                    <span className="pill pill-warn">Low</span>
+                  )}
+                </td>
+                <td>
+                  <button type="button" onClick={() => startEdit(product)}>
+                    Edit
+                  </button>
+                  <button className="btn-danger" onClick={() => handleDelete(product.id)}>
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,16 @@
-import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import Icon from './Icon';
 import logo from '../assets/logo.png';
 
+const NAV = [
+  { to: '/dashboard', label: 'Dashboard', icon: 'home' },
+  { to: '/products', label: 'Products', icon: 'grid' },
+  { to: '/categories', label: 'Categories', icon: 'tag' },
+];
+
 export default function Layout() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   async function handleLogout() {
@@ -18,9 +25,31 @@ export default function Layout() {
           <img src={logo} alt="Hidaya Save Mart" />
           <h2>Hidaya Save Mart</h2>
         </div>
-        <Link to="/products">Products</Link>
-        <Link to="/categories">Categories</Link>
-        <button onClick={handleLogout}>Logout</button>
+
+        {NAV.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) => 'sidebar-link' + (isActive ? ' active' : '')}
+          >
+            <Icon name={item.icon} />
+            {item.label}
+          </NavLink>
+        ))}
+
+        <div className="sidebar-foot">
+          <div className="sidebar-user">
+            <Icon name="user" size={16} />
+            <div>
+              <b>{user?.name ?? 'Admin'}</b>
+              <small>{user?.email ?? ''}</small>
+            </div>
+          </div>
+          <button onClick={handleLogout}>
+            <Icon name="logout" size={16} />
+            Logout
+          </button>
+        </div>
       </nav>
       <main className="content">
         <Outlet />

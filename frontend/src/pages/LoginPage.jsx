@@ -19,7 +19,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      navigate('/products');
+      navigate('/dashboard');
     } catch {
       setError('Invalid email or password');
     } finally {
